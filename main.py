@@ -92,7 +92,7 @@ combinedY = np.hstack((y_train, y_test))
 lrAccuracy, prob = logisticRegression(X_train_std, y_train, combinedX, combinedY)
 
 
-# svmAccuracy = svm(X_train_std, y_train)
+svmAccuracy = svm(X_train_std, y_train)
 
 # rfAccuracy = rfClassifier(X_train_std, y_train)
 # dtAccuracy = dtClassifier(X_train_std, y_train, combinedX, combinedY)
