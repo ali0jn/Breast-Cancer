@@ -10,32 +10,31 @@ from sklearn.svm import SVC
 
 dataFrame = pd.read_excel('COH plasma data.xlsx', sheet_name='Sheet1')
 dataFrame.dropna(how='all')
-ER_X = np.array(dataFrame.iloc[16:, 8:]).transpose()
-ER_y = np.array([dataFrame.iloc[1, 8:], np.zeros(171, )]).transpose()
-
-
-ER_X_train, ER_X_test, ER_y_train, ER_y_test = train_test_split(ER_X, ER_y, test_size=0.3)
-
+X = np.array(dataFrame.iloc[16:, 8:]).transpose()
+y = np.column_stack((dataFrame.iloc[1:4, 8:].T, dataFrame.iloc[15, 8:].T))
+pd.DataFrame(X).fillna(0, inplace=True)
+pd.DataFrame(y).fillna(0, inplace=True)
+y = y.astype('int')
 sc = StandardScaler()
-sc.fit(ER_X_train)
-ER_X_train_std = sc.transform(ER_X_train)
-ER_X_test_std = sc.transform(ER_X_test)
-
-pd.DataFrame(ER_X_train_std).fillna(0, inplace=True)
-pd.DataFrame(ER_X_test_std).fillna(0, inplace=True)
-
-lrClf = LogisticRegression()
-print(ER_X_train_std.shape, ER_X_test_std.shape)
-lrClf.fit(ER_X_train_std, ER_y_train)
-
-# combinedX = np.vstack((X_train_std, X_test_std))
-# combinedY = np.vstack((y_train, y_test))
+X_std = sc.fit_transform(X)
 
 
-# lrCrossVal = round(sum(cross_val_score(lrClf, combinedX, combinedY, cv=10, scoring='f1_micro')) * 10.0, 2)
+def getScore(clf, X, y):
+    skf = StratifiedKFold(n_splits=10, shuffle=True)
+    scores = []
+    clf = clf
+    for train_index, test_index in skf.split(X, y):
+        X_train, X_test, y_train, y_test = X[train_index], X[test_index], y[train_index], y[test_index]
+        clf.fit(X_train, y_train)
+        scores.append(clf.score(X_test, y_test))
+    return round(sum(scores) * 10.0, 2)
 
 
+# Approach2: Create two classifiers: The first one will predict whether a given individual is healthy or breast cancer,
+# and the second one will predict the subtype of the breast cancer for those individuals predicted as breast cancer by
+# the first individual. Then, you will create ensembl of these two classifiers (you may need to study the corresponding
+# chapter of the book, or another tutorial for this).  Please note that the first classifier will utilize the whole
+# dataset, while the second classifier will only be using the patients for both training and testing.
 
-
-
-
+clf = SVC()
+clf.fit(X_std, y[:, 3])
