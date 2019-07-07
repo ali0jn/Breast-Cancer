@@ -36,5 +36,9 @@ def getScore(clf, X, y):
 # chapter of the book, or another tutorial for this).  Please note that the first classifier will utilize the whole
 # dataset, while the second classifier will only be using the patients for both training and testing.
 
+X_train, X_test, y_train, y_test = train_test_split(X_std, y[:, 3])
 clf = SVC()
-clf.fit(X_std, y[:, 3])
+clf.fit(X_train, y_train)
+yPred = clf.predict(X_test)
+wrongEstimations = (yPred != y_test).sum()
+
