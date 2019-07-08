@@ -40,7 +40,6 @@ def logisticRegression(X_train_std, y_train, combinedX, combinedY):
     kFold = round(sum(cross_val_score(lrClf, combinedX, combinedY, cv=10, scoring='f1_micro')) * 10.0, 2)
     y_pred = lrClf.predict(X_test_std)
     misClassified = (y_test != y_pred).sum()
-    print(prob, y_pred)
     return kFold, prob, misClassified, y_pred, lrClf
 
 
